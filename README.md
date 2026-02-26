@@ -141,6 +141,34 @@ The `idempotency_key` field in `PaymentEvent` is kept for:
 - End-to-end tracing - Correlate events across systems
 - Merchant-side deduplication - Merchants can use it for their own deduplication
 
+### Kafka Partitioning Strategy
+
+The service uses **customer_id-based partitioning** for both topics:
+
+```java
+kafkaTemplate.send(topic, customerId, enrichedPaymentEvent);
+```
+
+**Benefits:**
+- **Ordering Guarantee:** All events for the same customer are sent to the same partition, ensuring strict ordering per customer
+- **Parallel Processing:** Different customers' events can be processed in parallel across multiple partitions
+- **Consumer Scalability:** Multiple consumer instances can process different partitions concurrently
+- **Load Distribution:** Kafka's default partitioner distributes customers evenly across partitions using hash(customer_id) % num_partitions
+
+### Security
+
+#### Kafka Security
+
+The service Uses SASL/PLAIN mechanism for client authentication
+Credentials configured via environment variables:
+- `KAFKA_API_KEY` - SASL username
+- `KAFKA_API_SECRET` - SASL password
+
+#### Webhook Security
+
+The service is using **API Key Authentication** for outbound webhook calls:
+- Configured via `WEBHOOK_API_KEY` environment variable
+- Sent in request headers to authenticate with merchant endpoints
 
 ## Getting Started
 
@@ -163,5 +191,5 @@ Tests use:
 - **DLQ** for failed events
 - **Caching** for customer data
 - **Merchant service** to resolve subscription URL dynamically based on merchant ID
-
+- **Liquibase** for managing DB changes
 

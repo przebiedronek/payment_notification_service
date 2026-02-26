@@ -55,7 +55,7 @@ public class KafkaTestConfig {
     }
 
     @Bean("paymentEventsProducerFactory")
-    public ProducerFactory<String, PaymentEvent> producerFactory(
+    public ProducerFactory<Long, PaymentEvent> producerFactory(
             KafkaProperties kafkaProperties,
             SslBundles sslBundles) {
         var config = new HashMap<>(kafkaProperties.buildProducerProperties(sslBundles));
@@ -66,7 +66,7 @@ public class KafkaTestConfig {
     }
 
     @Bean("paymentEventsKafkaTemplate")
-    public KafkaTemplate<String, PaymentEvent> kafkaTemplate(@Qualifier("paymentEventsProducerFactory") ProducerFactory<String, PaymentEvent> producerFactory) {
+    public KafkaTemplate<Long, PaymentEvent> kafkaTemplate(@Qualifier("paymentEventsProducerFactory") ProducerFactory<Long, PaymentEvent> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 

@@ -92,7 +92,7 @@ public class PaymentNotificationApplicationTest {
     @Value("${KAFKA_ENRICHED_CONSUMER_GROUP}")
     private String enrichedConsumerGroupId;
 
-    private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
+    private final KafkaTemplate<Long, PaymentEvent> kafkaTemplate;
 
     private final EnrichedPaymentEventsConsumerHelper enrichedPaymentEventsConsumerHelper;
 
@@ -133,7 +133,7 @@ public class PaymentNotificationApplicationTest {
         stubHttpResponses(List.of(ResponseStub.SUCCESS));
 
         PaymentEvent paymentEvent = createSamplePaymentEvent();
-        kafkaTemplate.send(paymentEventsTopic, paymentEvent);
+        kafkaTemplate.send(paymentEventsTopic, paymentEvent.getCustomerId(), paymentEvent);
 
         boolean messageReceived = enrichedPaymentEventsConsumerHelper.awaitEvent(5);
         assertThat(messageReceived).isTrue();
@@ -157,7 +157,7 @@ public class PaymentNotificationApplicationTest {
         stubHttpResponsesWithTimeouts();
 
         PaymentEvent paymentEvent = createSamplePaymentEvent();
-        kafkaTemplate.send(paymentEventsTopic, paymentEvent);
+        kafkaTemplate.send(paymentEventsTopic, paymentEvent.getCustomerId(), paymentEvent);
 
         boolean messageReceived = enrichedPaymentEventsConsumerHelper.awaitEvent(5);
         assertThat(messageReceived).isTrue();
@@ -183,7 +183,7 @@ public class PaymentNotificationApplicationTest {
         stubHttpResponses(IntStream.range(0, retryCount).boxed().map(x -> ResponseStub.ERROR).toList());
 
         PaymentEvent paymentEvent = createSamplePaymentEvent();
-        kafkaTemplate.send(paymentEventsTopic, paymentEvent);
+        kafkaTemplate.send(paymentEventsTopic, paymentEvent.getCustomerId(), paymentEvent);
 
         boolean messageReceived = enrichedPaymentEventsConsumerHelper.awaitEvent(5);
         assertThat(messageReceived).isTrue();
@@ -205,7 +205,7 @@ public class PaymentNotificationApplicationTest {
         stubHttpResponses(List.of(ResponseStub.ERROR, ResponseStub.SUCCESS));
 
         PaymentEvent paymentEvent = createSamplePaymentEvent();
-        kafkaTemplate.send(paymentEventsTopic, paymentEvent);
+        kafkaTemplate.send(paymentEventsTopic, paymentEvent.getCustomerId(), paymentEvent);
 
         boolean messageReceived = enrichedPaymentEventsConsumerHelper.awaitEvent(1);
         assertThat(messageReceived).isTrue();
