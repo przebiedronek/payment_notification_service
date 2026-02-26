@@ -1,0 +1,32 @@
+syntax = "proto3";
+package com.biedron.payments.schema.v1;
+
+option java_multiple_files = true;
+option java_package = "com.biedron.payments.schema.v1";
+
+import "google/protobuf/timestamp.proto";
+
+enum PaymentStatus {
+  PAYMENT_UNSPECIFIED = 0;
+  PAYMENT_COMPLETED = 1;
+  PAYMENT_FAILED = 2;
+}
+
+// Payment domain data
+message PaymentData {
+  int64 amount = 1;
+  string currency = 2;
+  PaymentStatus payment_status = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message PaymentEvent {
+  // Identity fields
+  string payment_id = 1; //internal payment ID, e.g. "pay_456"
+  string idempotency_key = 2; // for de-duping, e.g. "pay_456-2025-02-22T10:15:30Z"
+  int64 customer_id = 3;
+  int64 merchant_id = 4;
+
+  // Domain data
+  PaymentData payment_data = 5;
+}

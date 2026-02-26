@@ -1,0 +1,25 @@
+syntax = "proto3";
+package com.biedron.payments.schema.v1;
+
+option java_multiple_files = true;
+option java_package = "com.biedron.payments.schema.v1";
+
+import "com/biedron/payments/schema/v1/payment_event.proto";
+
+message Customer {
+  int64 id = 1;
+  string email = 2;
+  string name = 3;
+}
+
+message EnrichedPaymentEvent {
+  // Identity fields
+  string payment_id = 1;
+  string idempotency_key = 2;
+  int64 customer_id = 3;
+  int64 merchant_id = 4;
+
+  // Domain data
+  PaymentData payment_data = 5;
+  Customer customer = 6;
+}

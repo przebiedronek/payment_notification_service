@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: payment-notifications-test
+    app:
+      topics:
+        payment-events: payment.events.test
+        enriched-payment-events: enriched.payment.events.test
+      webhook:
+        api-key: test-api-key-12345
+      rest:
+        timeout: 100
+        blocking:
+          retry:
+            maxAttempts: 3
+            multiplier: 1
+            delay: 2
+  datasource:
+    url: ${DB_CONNECTION_URL:jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.h2.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: com.biedron.payments.enrichedevents.EnrichedPaymentEventsSerDe
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: test-consumer-group
+      auto-offset-reset: earliest
+      properties:
+        key.deserializer: org.apache.kafka.common.serialization.LongDeserializer
+        value.deserializer: com.biedron.payments.paymentevents.PaymentEventsSerDe
+    properties:
+      security:
+        protocol: PLAINTEXT
+

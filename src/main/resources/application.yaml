@@ -1,0 +1,65 @@
+spring:
+  threads:
+    virtual:
+      enabled: true
+  application:
+    name: payment-notifications
+    app:
+      topics:
+        payment-events: payment.events
+        enriched-payment-events: enriched.payment.events
+      subscriptions:
+        url: https://test.com/subscription
+      webhook:
+        api-key: ${WEBHOOK_API_KEY}
+      rest:
+        timeout: 15000
+        blocking:
+          retry:
+            maxAttempts: 3
+            delay: 1000
+            multiplier: 2
+  datasource:
+    url: ${DB_CONNECTION_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+      show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_URL}
+    properties:
+      security.protocol: SASL_SSL
+      client.dns.lookup: use_all_dns_ips
+      session.timeout.ms: 45000
+      sasl:
+        mechanism: PLAIN
+        jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username='${KAFKA_API_KEY}' password='${KAFKA_API_SECRET}';
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: com.biedron.payments.events.serializers.EngagementEventsSerDe
+      acks: all
+      retries: 5
+      compression-type: zstd
+      properties:
+        # Enable idempotent producer to prevent duplicate messages
+        enable.idempotence: true
+    consumer:
+      properties:
+        key.deserializer: org.apache.kafka.common.serialization.LongSerializer
+
+logging:
+  level:
+    org:
+      apache:
+        kafka: WARN
+      springframework:
+        kafka: WARN
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: lazy
